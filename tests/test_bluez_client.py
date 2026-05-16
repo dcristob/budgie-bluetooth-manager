@@ -126,5 +126,22 @@ class TestBlueZClientDevices(unittest.TestCase):
         self.assertTrue(earbuds["paired"])
 
 
+class TestBlueZClientSignals(unittest.TestCase):
+    @patch("bluetooth_manager.bluez_client.Gio")
+    def test_signal_subscription_calls_bus_signal_subscribe(self, mock_gio):
+        mock_bus = MagicMock()
+        mock_gio.bus_get_sync.return_value = mock_bus
+        mock_gio.BusType.SYSTEM = 2
+        mock_gio.DBusSignalFlags.NONE = 0
+
+        client = BlueZClient()
+        client.subscribe_signals()
+
+        subscribe_calls = mock_bus.signal_subscribe.call_args_list
+        self.assertTrue(len(subscribe_calls) >= 3)
+        sender_args = [c[0][0] for c in subscribe_calls]
+        self.assertIn("org.bluez", sender_args)
+
+
 if __name__ == "__main__":
     unittest.main()

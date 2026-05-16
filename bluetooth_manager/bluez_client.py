@@ -123,3 +123,51 @@ class BlueZClient(GObject.GObject):
             None,
             Gio.DBusCallFlags.NONE, -1, None,
         )
+
+    def subscribe_signals(self):
+        self._bus.signal_subscribe(
+            BLUEZ_BUS,
+            OBJECT_MANAGER_IFACE,
+            "InterfacesAdded",
+            BLUEZ_PATH,
+            None,
+            Gio.DBusSignalFlags.NONE,
+            self._on_interfaces_added,
+            None,
+        )
+        self._bus.signal_subscribe(
+            BLUEZ_BUS,
+            OBJECT_MANAGER_IFACE,
+            "InterfacesRemoved",
+            BLUEZ_PATH,
+            None,
+            Gio.DBusSignalFlags.NONE,
+            self._on_interfaces_removed,
+            None,
+        )
+        self._bus.signal_subscribe(
+            BLUEZ_BUS,
+            PROPS_IFACE,
+            "PropertiesChanged",
+            None,
+            None,
+            Gio.DBusSignalFlags.NONE,
+            self._on_properties_changed,
+            None,
+        )
+
+    def _on_interfaces_added(self, connection, sender, path, iface, signal, params):
+        object_path, interfaces = params
+        if DEVICE_IFACE in interfaces:
+            self.emit("device-added", object_path)
+
+    def _on_interfaces_removed(self, connection, sender, path, iface, signal, params):
+        object_path, interfaces = params
+        if DEVICE_IFACE in interfaces:
+            self.emit("device-removed", object_path)
+
+    def _on_properties_changed(self, connection, sender, path, iface, signal, params):
+        if iface == ADAPTER_IFACE:
+            self.emit("adapter-changed")
+        elif iface in (DEVICE_IFACE, BATTERY_IFACE):
+            self.emit("device-changed", path)
