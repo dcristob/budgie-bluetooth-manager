@@ -6,3 +6,5 @@ builddir/
 dist/
 .pytest_cache/
 .venv/
+docs/
+AGENTS.md

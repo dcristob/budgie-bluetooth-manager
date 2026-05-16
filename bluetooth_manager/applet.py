@@ -4,10 +4,16 @@ gi.require_version("Budgie", "3.0")
 gi.require_version("Gio", "2.0")
 from gi.repository import Budgie, GObject, Gtk, Gio, GLib
 import logging
+import os
 
-logging.basicConfig(filename='/tmp/bt-manager-debug.log', level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s %(message)s')
-log = logging.getLogger('bt-manager')
+_debug = os.environ.get("BT_MANAGER_DEBUG", "").lower() in ("1", "true", "yes")
+_log_level = logging.DEBUG if _debug else logging.WARNING
+logging.basicConfig(
+    filename="/tmp/bt-manager-debug.log" if _debug else None,
+    level=_log_level,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+log = logging.getLogger("bt-manager")
 
 log.info("Module loaded")
 from bluez_client import BlueZClient
