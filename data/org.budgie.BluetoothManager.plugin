@@ -1,5 +1,6 @@
 [Plugin]
-Module=bluetooth_manager
+Loader=python
+Module=applet
 Name=Bluetooth Manager
 Description=Manage Bluetooth devices from the Budgie panel
 Authors=dcristob

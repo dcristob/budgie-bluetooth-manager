@@ -2,6 +2,9 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Budgie", "3.0")
 from gi.repository import Budgie, Gtk, GLib
+import logging
+
+log = logging.getLogger('bt-manager')
 
 
 class BluetoothPopover(Budgie.Popover):
@@ -15,6 +18,7 @@ class BluetoothPopover(Budgie.Popover):
         self._device_rows = []
         self._scan_timeout_id = None
         self._status_timeout_id = None
+        self._refresh_pending = False
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.set_margin_top(8)
@@ -50,7 +54,9 @@ class BluetoothPopover(Budgie.Popover):
         self._device_list = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scrolled.set_max_content_height(300)
+        scrolled.set_min_content_height(200)
+        scrolled.set_max_content_height(350)
+        scrolled.set_propagate_natural_height(True)
         scrolled.add(self._device_list)
         box.add(scrolled)
 
@@ -59,9 +65,21 @@ class BluetoothPopover(Budgie.Popover):
         self._spinner.hide()
         self._status_label.hide()
 
+    def sync_toggle(self, powered):
+        self._toggle.set_active(powered)
+
     def refresh_devices(self):
+        if self._refresh_pending:
+            return
+        self._refresh_pending = True
+        try:
+            self._do_refresh_devices()
+        finally:
+            self._refresh_pending = False
+
+    def _do_refresh_devices(self):
         for child in self._device_list.get_children():
-            child.destroy()
+            self._device_list.remove(child)
         self._device_rows = []
 
         try:
@@ -192,10 +210,21 @@ class BluetoothPopover(Budgie.Popover):
         self.refresh_devices()
 
     def _on_pair_clicked(self, button, path):
+        log.info(f"Pairing device: {path}")
         try:
             self._client.pair_device(path)
+            log.info(f"Pair succeeded: {path}")
         except Exception as e:
+            log.error(f"Pair failed for {path}: {e}", exc_info=True)
             self._show_status(f"Pair failed: {e}")
+            self.refresh_devices()
+            return
+        try:
+            self._client.connect_device(path)
+            log.info(f"Connect succeeded: {path}")
+        except Exception as e:
+            log.warning(f"Connect after pair failed for {path}: {e}")
+            self._show_status(f"Paired but connect failed")
         self.refresh_devices()
 
     def _on_remove_clicked(self, button, path):

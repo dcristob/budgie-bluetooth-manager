@@ -6,8 +6,7 @@ A modern, minimal Budgie panel applet for managing Bluetooth devices on CachyOS/
 
 ```
 bluetooth_manager/
-  bluetooth_manager/          # Python package (Budgie applet)
-    __init__.py
+  bluetooth_manager/          # Source files (installed flat into plugin dir)
     applet.py                 # Budgie Plugin + Applet entry points
     popover.py                # GTK3 popover UI
     bluez_client.py           # BlueZ D-Bus communication layer

@@ -8,7 +8,6 @@ install_data(
 )
 
 py_sources = [
-    'bluetooth_manager/__init__.py',
     'bluetooth_manager/applet.py',
     'bluetooth_manager/bluez_client.py',
     'bluetooth_manager/popover.py',
@@ -16,5 +15,5 @@ py_sources = [
 
 install_data(
     py_sources,
-    install_dir: join_paths(plugin_dir, 'bluetooth_manager'),
+    install_dir: plugin_dir,
 )

@@ -156,17 +156,17 @@ class BlueZClient(GObject.GObject):
             None,
         )
 
-    def _on_interfaces_added(self, connection, sender, path, iface, signal, params):
+    def _on_interfaces_added(self, connection, sender, path, iface, signal, params, user_data=None):
         object_path, interfaces = params
         if DEVICE_IFACE in interfaces:
             self.emit("device-added", object_path)
 
-    def _on_interfaces_removed(self, connection, sender, path, iface, signal, params):
+    def _on_interfaces_removed(self, connection, sender, path, iface, signal, params, user_data=None):
         object_path, interfaces = params
         if DEVICE_IFACE in interfaces:
             self.emit("device-removed", object_path)
 
-    def _on_properties_changed(self, connection, sender, path, iface, signal, params):
+    def _on_properties_changed(self, connection, sender, path, iface, signal, params, user_data=None):
         if iface == ADAPTER_IFACE:
             self.emit("adapter-changed")
         elif iface in (DEVICE_IFACE, BATTERY_IFACE):
