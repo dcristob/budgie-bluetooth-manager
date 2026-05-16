@@ -1,0 +1,7 @@
+[Plugin]
+Module=bluetooth_manager
+Name=Bluetooth Manager
+Description=Manage Bluetooth devices from the Budgie panel
+Authors=dcristob
+Website=
+Icon=bluetooth-symbolic
