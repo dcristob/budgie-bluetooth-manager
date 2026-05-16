@@ -1,7 +1,7 @@
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Budgie", "3.0")
-from gi.repository import Budgie, GObject, Gtk, GLib
+from gi.repository import Budgie, Gtk, GLib
 
 
 class BluetoothPopover(Budgie.Popover):
@@ -13,6 +13,8 @@ class BluetoothPopover(Budgie.Popover):
         Budgie.Popover.__init__(self, relative_to=parent)
         self._client = client
         self._device_rows = []
+        self._scan_timeout_id = None
+        self._status_timeout_id = None
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.set_margin_top(8)
@@ -58,8 +60,8 @@ class BluetoothPopover(Budgie.Popover):
         self._status_label.hide()
 
     def refresh_devices(self):
-        for row in self._device_rows:
-            row.destroy()
+        for child in self._device_list.get_children():
+            child.destroy()
         self._device_rows = []
 
         try:
@@ -141,7 +143,11 @@ class BluetoothPopover(Budgie.Popover):
         self._device_rows.append(row)
 
     def _on_toggle_changed(self, switch, param):
-        self._client.set_adapter_powered(switch.get_active())
+        try:
+            self._client.set_adapter_powered(switch.get_active())
+        except Exception as e:
+            switch.set_active(not switch.get_active())
+            self._show_status(f"Failed: {e}")
 
     def _on_scan_clicked(self, button):
         self._scan_button.set_sensitive(False)
@@ -155,13 +161,16 @@ class BluetoothPopover(Budgie.Popover):
             self._spinner.stop()
             self._spinner.hide()
             return
-        GLib.timeout_add_seconds(self.SCAN_TIMEOUT_SECONDS, self._stop_scan)
+        self._scan_timeout_id = GLib.timeout_add_seconds(self.SCAN_TIMEOUT_SECONDS, self._stop_scan)
 
     def _stop_scan(self):
+        self._scan_timeout_id = None
         try:
             self._client.stop_discovery()
         except Exception:
             pass
+        if not self._device_list.get_realized():
+            return False
         self._spinner.stop()
         self._spinner.hide()
         self._scan_button.set_sensitive(True)
@@ -199,8 +208,11 @@ class BluetoothPopover(Budgie.Popover):
     def _show_status(self, message):
         self._status_label.set_text(message)
         self._status_label.show()
-        GLib.timeout_add_seconds(3, self._hide_status)
+        if self._status_timeout_id is not None:
+            GLib.source_remove(self._status_timeout_id)
+        self._status_timeout_id = GLib.timeout_add_seconds(3, self._hide_status)
 
     def _hide_status(self):
+        self._status_timeout_id = None
         self._status_label.hide()
         return False

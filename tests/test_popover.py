@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Budgie", "3.0")
