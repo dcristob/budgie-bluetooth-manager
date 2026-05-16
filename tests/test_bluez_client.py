@@ -143,5 +143,43 @@ class TestBlueZClientSignals(unittest.TestCase):
         self.assertIn("org.bluez", sender_args)
 
 
+class TestBlueZClientActions(unittest.TestCase):
+    @patch("bluetooth_manager.bluez_client.Gio")
+    def test_pair_calls_device_pair(self, mock_gio):
+        mock_bus = MagicMock()
+        mock_gio.bus_get_sync.return_value = mock_bus
+        mock_gio.BusType.SYSTEM = 2
+        mock_gio.DBusCallFlags.NONE = 0
+
+        client = BlueZClient()
+        client.pair_device("/org/bluez/hci0/dev_AA")
+        call_args = mock_bus.call_sync.call_args
+        self.assertIn("Pair", str(call_args))
+
+    @patch("bluetooth_manager.bluez_client.Gio")
+    def test_connect_calls_device_connect(self, mock_gio):
+        mock_bus = MagicMock()
+        mock_gio.bus_get_sync.return_value = mock_bus
+        mock_gio.BusType.SYSTEM = 2
+        mock_gio.DBusCallFlags.NONE = 0
+
+        client = BlueZClient()
+        client.connect_device("/org/bluez/hci0/dev_AA")
+        call_args = mock_bus.call_sync.call_args
+        self.assertIn("Connect", str(call_args))
+
+    @patch("bluetooth_manager.bluez_client.Gio")
+    def test_remove_calls_adapter_remove_device(self, mock_gio):
+        mock_bus = MagicMock()
+        mock_gio.bus_get_sync.return_value = mock_bus
+        mock_gio.BusType.SYSTEM = 2
+        mock_gio.DBusCallFlags.NONE = 0
+
+        client = BlueZClient()
+        client.remove_device("/org/bluez/hci0/dev_AA")
+        call_args = mock_bus.call_sync.call_args
+        self.assertIn("RemoveDevice", str(call_args))
+
+
 if __name__ == "__main__":
     unittest.main()
