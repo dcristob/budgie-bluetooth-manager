@@ -8,8 +8,15 @@ import os
 
 _debug = os.environ.get("BT_MANAGER_DEBUG", "").lower() in ("1", "true", "yes")
 _log_level = logging.DEBUG if _debug else logging.WARNING
+if _debug:
+    _log_dir = os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state"))
+    _log_dir = os.path.join(_log_dir, "bt-manager")
+    os.makedirs(_log_dir, exist_ok=True)
+    _log_file = os.path.join(_log_dir, "debug.log")
+else:
+    _log_file = None
 logging.basicConfig(
-    filename="/tmp/bt-manager-debug.log" if _debug else None,
+    filename=_log_file,
     level=_log_level,
     format="%(asctime)s %(levelname)s %(message)s",
 )

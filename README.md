@@ -56,7 +56,7 @@ python -m pytest tests/ -v
 
 ### Debug logging
 
-Enable with `BT_MANAGER_DEBUG=1` before loading the applet. Logs go to `/tmp/bt-manager-debug.log`.
+Enable with `BT_MANAGER_DEBUG=1` before loading the applet. Logs go to `~/.local/state/bt-manager/debug.log`.
 
 ## License
 
