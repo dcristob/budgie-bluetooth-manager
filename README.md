@@ -20,6 +20,14 @@ A modern Budgie panel applet for managing Bluetooth devices. Built for CachyOS/B
 
 ## Install
 
+One-liner (install or update):
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/dcristob/budgie-bluetooth-manager/main/install.sh)
+```
+
+Or build manually:
+
 ```bash
 meson setup builddir --prefix=/usr
 sudo ninja -C builddir install
@@ -27,10 +35,15 @@ sudo ninja -C builddir install
 
 Then add "Bluetooth Manager" in Budgie's "Add Applet" dialog.
 
+## Update
+
+Re-run the install script — it pulls the latest changes and reinstalls.
+
 ## Uninstall
 
 ```bash
-sudo ninja -C builddir uninstall
+sudo rm -rf /usr/lib/budgie-desktop/plugins/budgie-bluetooth-manager
+rm -rf ~/.local/share/budgie-bluetooth-manager
 ```
 
 ## Development
@@ -43,7 +56,7 @@ python -m pytest tests/ -v
 
 ### Debug logging
 
-Logs are written to `/tmp/bt-manager-debug.log` when the applet is loaded.
+Enable with `BT_MANAGER_DEBUG=1` before loading the applet. Logs go to `/tmp/bt-manager-debug.log`.
 
 ## License
 
