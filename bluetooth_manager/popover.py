@@ -139,12 +139,10 @@ class BluetoothPopover(Budgie.Popover):
 
         if dev["connected"]:
             btn = Gtk.Button.new_from_icon_name("list-remove-symbolic", Gtk.IconSize.MENU)
-            btn.set_tooltip_text("Disconnect")
             btn.connect("clicked", self._on_disconnect_clicked, dev["path"])
             row.pack_start(btn, False, False, 0)
         elif dev["paired"]:
             btn = Gtk.Button.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
-            btn.set_tooltip_text("Connect")
             btn.connect("clicked", self._on_connect_clicked, dev["path"])
             row.pack_start(btn, False, False, 0)
         else:
@@ -153,7 +151,6 @@ class BluetoothPopover(Budgie.Popover):
             row.pack_start(btn, False, False, 0)
 
         remove_btn = Gtk.Button.new_from_icon_name("edit-delete-symbolic", Gtk.IconSize.MENU)
-        remove_btn.set_tooltip_text("Remove device")
         remove_btn.connect("clicked", self._on_remove_clicked, dev["path"])
         row.pack_start(remove_btn, False, False, 0)
 
